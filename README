@@ -342,6 +342,18 @@ original functionality, pass float into the method when calling::
 If you don't have the croniter module installed, you'll get an ImportError when
 you first try using the schedule function on your cron job object.
 
+Descriptor Functionality
+========================
+
+If you have the cron-descriptor module installed, you will be able to ask for a
+translated string which describes the frequency of the job in the current
+locale language. This should be mostly human readable.
+
+
+    print(job.description(use_24hour_time_format=True))
+
+See cron-descriptor for details of the supported languages and options.
+
 Extra Support
 =============
 

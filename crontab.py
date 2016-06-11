@@ -1,5 +1,5 @@
 #
-# Copyright 2015, Martin Owens <doctormo@gmail.com>
+# Copyright 2016, Martin Owens <doctormo@gmail.com>
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -95,7 +95,7 @@ from collections import OrderedDict
 from datetime import time, date, datetime, timedelta
 
 __pkgname__ = 'python-crontab'
-__version__ = '2.0.2'
+__version__ = '2.1.0'
 
 ITEMREX = re.compile(r'^\s*([^@#\s]+)\s+([^@#\s]+)\s+([^@#\s]+)\s+([^@#\s]+)'
                      r'\s+([^@#\s]+)\s+([^#\n]*)(\s+#\s*([^\n]*)|$)')
@@ -648,6 +648,21 @@ class CronItem(object):
                 return croniter.get_current(self, type_ref)
 
         return Croniter(self.slices.clean_render(), date_from)
+
+    def description(self, **kw):
+        """
+        Returns a description of the crontab's schedule (if available)
+        
+        **kw - Keyword arguments to pass to cron_descriptor (see docs)
+        """
+        try:
+            from cron_descriptor import ExpressionDescriptor
+        except ImportError:
+            raise ImportError("cron_descriptor not available. Please install"
+              "cron_descriptor python module via pip or your package manager")
+
+        exdesc = ExpressionDescriptor(self.slices.clean_render(), **kw)
+        return exdesc.get_description()
 
     @property
     def log(self):
