@@ -214,6 +214,10 @@ class InteractionTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             dow.get_range('%')
 
+    def test_15_slice_id(self):
+        """Single slice by Id"""
+        self.assertEqual(CronSlice(1).max, 23)
+
     def test_17_range_cmp(self):
         """Compare ranges"""
         dow = CronSlice({'max': 5, 'min': 0})

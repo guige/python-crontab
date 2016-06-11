@@ -25,7 +25,7 @@ import sys
 sys.path.insert(0, '../')
 
 import unittest
-from crontab import CronTab, PY3
+from crontab import CronTab, CronSlice, PY3
 try:
     from test import test_support
 except ImportError:
@@ -81,17 +81,13 @@ class RangeTestCase(unittest.TestCase):
         """)
         self.assertEqual(len(tab), 0)
 
-
     def test_05_sunday(self):
-        tab = CronTab(tab="""
-* * * * 7 command
-* * * * 5-7 command
-* * * * 1-7 command
-* * * * */7 command
-""")
-        self.assertEqual(len(tab), 4)
-        record = [str(job.slices[-1]) for job in tab]
-        self.assertEqual(record, ["0", "0,5-6", "*", "0"])
+        """Test all possible day of week combinations"""
+        for (a, b) in (
+          ("7", "0"), ("5-7", "0,5-6"), ("1-7","*"), ("*/7", "0"),
+          ("0-6", "*"), ("2-7", "0,2-6"), ("1-5", "1-5"), ("0-5", "0-5")):
+            v = str(CronSlice(4, a))
+            self.assertEqual(v, b, "%s != %s, from %s" % (v, b, a))
 
 if __name__ == '__main__':
     test_support.run_unittest(

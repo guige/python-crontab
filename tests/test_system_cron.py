@@ -121,8 +121,6 @@ JAR=bar
 
     def test_09_resaving(self):
         """Cycle rendering to show no changes"""
-        print self.crontab.env
-        print self.crontab.lines
         for i in range(10):
             self.crontab = CronTab(tab=str(self.crontab))
 

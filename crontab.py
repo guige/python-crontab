@@ -766,9 +766,7 @@ class CronSlices(list):
         month requency and finally day of the week frequency.
      """
     def __init__(self, *args):
-        super(CronSlices, self).__init__()
-        for info in S_INFO:
-            self.append(CronSlice(info))
+        super(CronSlices, self).__init__([CronSlice(info) for info in S_INFO])
         self.special = None
         if args and not self.setall(*args):
             raise ValueError("Can't set cron value to: %s" % str(args))
@@ -916,6 +914,8 @@ class Also(object):
 class CronSlice(object):
     """Cron slice object which shows a time pattern"""
     def __init__(self, info, value=None):
+        if isinstance(info, int):
+            info = S_INFO[info]
         self.min = info.get('min', None)
         self.max = info.get('max', None)
         self.name = info.get('name', None)
