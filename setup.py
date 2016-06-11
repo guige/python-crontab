@@ -43,10 +43,13 @@ setup(
     test_suite       = 'tests',
     platforms        = 'linux',
     license          = 'LGPLv3',
-    py_modules       = [ 'crontab', 'crontabs', 'cronlog' ],
-    provides         = [ 'crontab', 'crontabs', 'cronlog' ],
-    install_requires = [ 'python-dateutil' ],
-    extras_require   = { 'cron-schedule': ['croniter'] },
+    py_modules       = ['crontab', 'crontabs', 'cronlog'],
+    provides         = ['crontab', 'crontabs', 'cronlog'],
+    install_requires = ['python-dateutil'],
+    extras_require   = {
+      'cron-schedule': ['croniter'],
+      'cron-description': ['cron-descriptor'],
+    },
     classifiers      = [
       'Development Status :: 5 - Production/Stable',
       'Development Status :: 6 - Mature',
