@@ -162,7 +162,7 @@ def open_pipe(cmd, *args, **flags):
         if len(key) == 1:
             cmd_args += ("-%s" % key),
             if value is not None:
-                cmd_args += str(value),
+                cmd_args += unicode(value),
         else:
             cmd_args += ("--%s=%s" % (key, value)),
     args = tuple(arg for arg in (cmd_args + tuple(args)) if arg)
@@ -248,7 +248,7 @@ class CronTab(object):
                 lines = fhl.readlines()
         elif self.user:
             (out, err) = open_pipe(CRONCMD, l='', **self.user_opt).communicate()
-            if err and 'no crontab for' in str(err):
+            if err and 'no crontab for' in unicode(err):
                 pass
             elif err:
                 raise IOError("Read crontab %s: %s" % (self.user, err))
@@ -541,7 +541,7 @@ class CronItem(object):
             if not self.user:
                 raise ValueError("Job to system-cron format, no user set!")
             user = self.user + ' '
-        result = u"%s %s%s" % (str(self.slices), user, self.command)
+        result = u"%s %s%s" % (unicode(self.slices), user, self.command)
         if self.comment:
             self.comment = _unicode(self.comment)
             if SYSTEMV:
@@ -717,10 +717,10 @@ class CronItem(object):
         return self.slices[4]
 
     def __repr__(self):
-        return "<CronJob '%s'>" % str(self)
+        return "<CronJob '%s'>" % unicode(self)
 
     def __len__(self):
-        return len(str(self))
+        return len(unicode(self))
 
     def __getitem__(self, key):
         return self.slices[key]
@@ -784,7 +784,7 @@ class CronSlices(list):
         super(CronSlices, self).__init__([CronSlice(info) for info in S_INFO])
         self.special = None
         if args and not self.setall(*args):
-            raise ValueError("Can't set cron value to: %s" % str(args))
+            raise ValueError("Can't set cron value to: %s" % unicode(args))
         self.is_valid = self.is_self_valid
 
     def is_self_valid(self, *args):
@@ -841,7 +841,7 @@ class CronSlices(list):
             try:
                 set_a.parse(set_b)
             except ValueError as error:
-                LOG.warning(str(error))
+                LOG.warning(unicode(error))
                 return False
             except Exception:
                 return False
@@ -944,7 +944,7 @@ class CronSlice(object):
         self.parts = []
         if value is None:
             return self.clear()
-        for part in str(value).split(','):
+        for part in unicode(value).split(','):
             if part.find("/") > 0 or part.find("-") > 0 or part == '*':
                 self.parts += self.get_range(part)
                 continue
@@ -952,7 +952,7 @@ class CronSlice(object):
             try:
                 self.parts.append(self.parse_value(part, sunday=0))
             except ValueError as err:
-                raise ValueError('%s:%s/%s' % (str(err), self.name, part))
+                raise ValueError('%s:%s/%s' % (unicode(err), self.name, part))
 
     def render(self, resolve=False):
         """Return the slice rendered as a crontab.
@@ -965,10 +965,10 @@ class CronSlice(object):
         return _render_values(self.parts, ',', resolve)
 
     def __repr__(self):
-        return "<CronSlice '%s'>" % str(self)
+        return "<CronSlice '%s'>" % unicode(self)
 
     def __eq__(self, value):
-        return str(self) == str(value)
+        return unicode(self) == unicode(value)
 
     def __str__(self):
         return self.__unicode__()
@@ -995,7 +995,7 @@ class CronSlice(object):
         """Set the During value, which sets a range"""
         if not also:
             self.clear()
-        self.parts += self.get_range(str(vfrom) + '-' + str(vto))
+        self.parts += self.get_range(unicode(vfrom) + '-' + unicode(vto))
         return self.parts[-1]
 
     @property
@@ -1053,7 +1053,7 @@ class CronSlice(object):
 
         if int(out) < self.min or int(out) > self.max:
             raise ValueError("Invalid value '%s', expected %d-%d for %s" % (
-                str(val), self.min, self.max, self.name))
+                unicode(val), self.min, self.max, self.name))
         return out
 
 
@@ -1061,11 +1061,11 @@ def get_cronvalue(value, enums):
     """Returns a value as int (pass-through) or a special enum value"""
     if isinstance(value, int):
         return value
-    elif str(value).isdigit():
+    elif unicode(value).isdigit():
         return int(str(value))
     if not enums:
         raise KeyError("No enumeration allowed")
-    return CronValue(str(value), enums)
+    return CronValue(unicode(value), enums)
 
 
 class CronValue(object):
@@ -1078,7 +1078,7 @@ class CronValue(object):
         return self.value < int(value)
 
     def __repr__(self):
-        return str(self)
+        return unicode(self)
 
     def __str__(self):
         return self.enum
@@ -1100,7 +1100,7 @@ def _render(value, resolve=False):
         return value.render(resolve)
     if resolve:
         return str(int(value))
-    return str(value)
+    return unicode(value)
 
 
 class CronRange(object):
@@ -1160,13 +1160,13 @@ class CronRange(object):
         value = '*'
         if int(self.vfrom) > self.slice.min or int(self.vto) < self.slice.max:
             if self.vfrom == self.vto:
-                value = str(self.vfrom)
+                value = unicode(self.vfrom)
             else:
                 value = _render_values([self.vfrom, self.vto], '-', resolve)
         if self.seq != 1:
             value += "/%d" % self.seq
         if value != '*' and SYSTEMV:
-            value = ','.join([str(val) for val in self.range()])
+            value = ','.join([unicode(val) for val in self.range()])
         return value
 
     def range(self):

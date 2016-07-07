@@ -93,7 +93,22 @@ class Utf8TestCase(unittest.TestCase):
         self.crontab[0].comment = '￼𝗔𝗕𝗖𝗗'
         self.assertEqual(self.crontab.render(), u"""
 */4 * * * * ￡１２ # ￼𝗔𝗕𝗖𝗗
-""")     
+""")
+
+    def test_09_utf8_again(self):
+        """Test Extra UTF8 input"""
+        filename = os.path.join(TEST_DIR, 'data', 'utf_extra')
+        with open(filename + '.in', 'w') as fhl:
+            fhl.write('# 中文\n30 2 * * * source /etc/profile\n30 1 * * * source /etc/profile')
+
+        try:
+            cron = CronTab(tabfile=filename + '.in')
+        finally:
+            os.unlink(filename + '.in')
+
+        cron.write(filename + '.out')
+        if os.path.isfile(filename + '.out'):
+            os.unlink(filename + '.out')
 
 if __name__ == '__main__':
     test_support.run_unittest(

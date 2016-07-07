@@ -6,5 +6,6 @@ debian
 output-*
 .coverage
 *.egg-info
+.eggs
 *.pyc
 *.swp
