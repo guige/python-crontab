@@ -22,8 +22,6 @@ Test any internal scheduling
 import os
 import sys
 
-sys.path.insert(0, '../')
-
 import unittest
 import crontab
 import logging

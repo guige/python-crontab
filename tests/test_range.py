@@ -92,7 +92,7 @@ class RangeTestCase(unittest.TestCase):
     def test_06_backwards(self):
         """Test backwards ranges for error"""
         tab = CronTab(tab="* * * * 3-1 command")
-        self.assertEquals(str(tab), "* * * * 1-3 command\n")
+        self.assertEqual(str(tab), "* * * * 1-3 command\n")
 
 if __name__ == '__main__':
     test_support.run_unittest(
