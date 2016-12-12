@@ -251,6 +251,14 @@ Do not do this, it won't work because it returns generator function::
 
     tab.run_scheduler()
 
+Timeout and cadence can be changed for testing or error management::
+
+    for result in tab.run_scheduler(timeout=600):
+        print "Will run jobs every 1 minutes for ten minutes from now()"
+
+    for result in tab.run_scheduler(cadence=1, warp=True):
+        print "Will run jobs every 1 second, counting each second as 1 minute"
+
 Frequency Calculation
 =====================
 

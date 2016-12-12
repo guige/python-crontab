@@ -321,7 +321,7 @@ class CronTab(object):
             if ret is not None:
                 yield ret
 
-    def run_scheduler(self, timeout=0, **kwargs):
+    def run_scheduler(self, timeout=-1, **kwargs):
         """Run the CronTab as an internal scheduler (generator)"""
         count = 0
         self.run_pending()
