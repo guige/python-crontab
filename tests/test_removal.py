@@ -115,6 +115,15 @@ class RemovalTestCase(unittest.TestCase):
             self.assertEqual(len(crontab), 0)
             self.assertEqual(str(crontab), '')
 
+    def test_09_removal_during_iter(self):
+        crontab = CronTab()
+        for x in range(0, 5, 1):
+            job = crontab.new(command="cmd", comment="SAME_ID")
+            job.setall("%d * * * *" % (x + 1))
+        for item in crontab.find_comment("SAME_ID"):
+            crontab.remove(item)
+        self.assertEqual(len(crontab), 0)
+
     def get_new_file(self, name):
         """Gets a filename and records it for deletion"""
         this_dir = os.path.dirname(__file__)

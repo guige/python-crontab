@@ -356,19 +356,19 @@ class CronTab(object):
 
     def find_command(self, command):
         """Return an iter of jobs matching any part of the command."""
-        for job in self.crons:
+        for job in list(self.crons):
             if command in job.command:
                 yield job
 
     def find_comment(self, comment):
         """Return an iter of jobs that match the comment field exactly."""
-        for job in self.crons:
+        for job in list(self.crons):
             if job.comment == comment:
                 yield job
 
     def find_time(self, *args):
         """Return an iter of jobs that match this time pattern"""
-        for job in self.crons:
+        for job in list(self.crons):
             if job.slices == CronSlices(*args):
                 yield job
 
