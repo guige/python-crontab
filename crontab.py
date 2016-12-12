@@ -91,8 +91,17 @@ import tempfile
 import subprocess as sp
 
 from time import sleep
-from collections import OrderedDict
 from datetime import time, date, datetime, timedelta
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    # python 2.6 and below causes this error
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        raise ImportError("OrderedDict is required for python-crontab, you can"
+                " install ordereddict 1.1 from pypi for python2.6")
 
 __pkgname__ = 'python-crontab'
 __version__ = '2.1.1'
