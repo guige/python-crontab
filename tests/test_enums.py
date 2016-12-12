@@ -33,7 +33,7 @@ except ImportError:
 
 INITAL_TAB = """
 * * * JAN     SAT          enums
-* * * APR-MAR *            ranges
+* * * MAR-APR *            ranges
 * * * *       MON,FRI,WED  multiples
 * * * *       *            com1 # Comment One
 * * * *       *            com2 # Comment One

@@ -1154,6 +1154,9 @@ class CronRange(object):
                 else:
                     self.dangling = 0
                 self.vto = self.slice.parse_value(vto, sunday=6)
+            if self.vto < self.vfrom:
+                logging.warning("Cron range is backwards '%d-%d'" % \
+                        (self.vfrom, self.vto))
         elif value == '*':
             self.all()
         else:
