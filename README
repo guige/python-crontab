@@ -162,12 +162,12 @@ Clean a job of all rules::
 
     job.clear()
 
-Iterate through all jobs::
+Iterate through all jobs, this includes disabled (commented out) cron jobs::
 
     for job in cron:
         print job
 
-Iterate through all lines::
+Iterate through all lines, this includes all comments and empty lines::
 
     for line in cron.lines:
         print line
