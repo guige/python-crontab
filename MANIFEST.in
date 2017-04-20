@@ -1,6 +1,6 @@
 include AUTHORS
 include COPYING
-include README
+include README.md
 include MANIFEST.in
 include ChangeLog
 include setup.py

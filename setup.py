@@ -25,7 +25,7 @@ import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 # Grab description for Pypi
-with open('README') as fhl:
+with open('README.md') as fhl:
     description = fhl.read()
 
 # Used for rpm building
@@ -38,7 +38,7 @@ setup(
     description      = 'Python Crontab API',
     long_description = description,
     author           = 'Martin Owens',
-    url              = 'https://launchpad.net/python-crontab',
+    url              = 'https://github.com/doctormo/python-crontab',
     author_email     = 'doctormo@gmail.com',
     test_suite       = 'tests',
     platforms        = 'linux',
