@@ -165,16 +165,6 @@ Iterate through all lines, this includes all comments and empty lines::
     for line in cron.lines:
         print line
 
-Iterate through environment variables::
-
-    for (name, value) in cron.env.items():
-        print name
-        print value
-
-Create new or update enviroment variable::
-
-    cron.env['SHELL'] = '/bin/bash'
-
 Remove Items::
 
     cron.remove( job )
@@ -206,6 +196,36 @@ Validate a cron time string::
 
     from crontab import CronSlices
     bool = CronSlices.is_valid('0/2 * * * *')
+
+
+Environment Variables
+=====================
+
+Some versions of vixie cron support variables outside of the command line.
+Sometimes just update the envronment when commands are run, the Cronie fork
+of vixie cron also supports CRON_TZ which looks like a regular variable but
+actually changes the times the jobs are run at.
+
+Very old vixie crons don't support per-job variables, but most do.
+
+Iterate through cron level environment variables::
+
+    for (name, value) in cron.env.items():
+        print name
+        print value
+
+Create new or update cron level enviroment variables::
+
+    print cron.env['SHELL']
+    cron.env['SHELL'] = '/bin/bash'
+    print cron.env
+
+Each job can also have a list of environment variables::
+
+    for job in cron:
+        job.env['NEW_VAR'] = 'A'
+        print job.env
+
 
 Proceeding Unit Confusion
 =========================
@@ -360,6 +380,6 @@ Extra Support
 
  - Support for vixie cron with username addition with user flag
  - Support for SunOS, AIX & HP with compatibility 'SystemV' mode.
- - Python 3.4 and Python 2.7/2.6 tested.
+ - Python 3.5.2 and Python 2.7/2.6 tested.
  - Windows support works for non-system crontabs only.
    ( see mem_cron and file_cron examples above for usage )
