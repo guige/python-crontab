@@ -32,16 +32,14 @@ except ImportError:
     from test import support as test_support
 
 TEST_FILE = os.path.join(os.path.dirname(__file__), 'data', 'crontab')
-INITAL_TAB = """VAR=foo
-JAR=bar
-
+INITIAL_TAB = """
 */30 * * * * palin one_cross_each
 """
 
 class SystemCronTestCase(unittest.TestCase):
     """Test vixie cron user addition."""
     def setUp(self):
-        self.crontab = CronTab(tab=INITAL_TAB, user=False)
+        self.crontab = CronTab(tab=INITIAL_TAB, user=False)
 
     def test_00_repr(self):
         """System crontab repr"""
@@ -61,9 +59,7 @@ class SystemCronTestCase(unittest.TestCase):
         job = self.crontab.new(command='release_brian', user='pontus')
         self.assertEqual(job.user, 'pontus')
         self.assertEqual(job.command, 'release_brian')
-        self.assertEqual(str(self.crontab), """VAR=foo
-JAR=bar
-
+        self.assertEqual(str(self.crontab), """
 */30 * * * * palin one_cross_each
 
 * * * * * pontus release_brian
@@ -90,9 +86,7 @@ JAR=bar
     def test_05_remove(self):
         """Remove the user flag"""
         self.crontab._user = None
-        self.assertEqual(str(self.crontab), """VAR=foo
-JAR=bar
-
+        self.assertEqual(str(self.crontab), """
 */30 * * * * one_cross_each
 """)
         self.crontab.new(command='now_go_away')
@@ -111,20 +105,12 @@ JAR=bar
         crontab = CronTab(user=False, tab="* * * * * user command\n")
         self.assertEqual(str(crontab), "* * * * * user command\n")
 
-    def test_08_variables(self):
-        """Vixie cron variables support"""
-        self.assertEqual(self.crontab.env, {'VAR': 'foo', 'JAR': 'bar'})
-        self.crontab.env['SHELL'] = 'bash'
-        self.assertEqual(str(self.crontab), """VAR=foo\nJAR=bar\nSHELL=bash\n
-*/30 * * * * palin one_cross_each
-""")
-
     def test_09_resaving(self):
         """Cycle rendering to show no changes"""
         for i in range(10):
             self.crontab = CronTab(tab=str(self.crontab))
 
-        self.assertEqual(str(self.crontab), INITAL_TAB.lstrip())
+        self.assertEqual(INITIAL_TAB, str(self.crontab))
 
     def test_10_system_file(self):
         """Load system crontab from a file"""
@@ -132,6 +118,4 @@ JAR=bar
         self.assertEqual(repr(crontab), "<System CronTab '%s'>" % TEST_FILE)
 
 if __name__ == '__main__':
-    test_support.run_unittest(
-       SystemCronTestCase,
-    )
+    test_support.run_unittest(SystemCronTestCase)
