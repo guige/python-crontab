@@ -205,7 +205,8 @@ class CronTab(object):
         self.lines = None
         self.crons = None
         self.filen = None
-        self.env = {}
+        self.env = None
+        self._parked_env = OrderedDict()
         # Protect windows users
         self.root = not WINOS and os.getuid() == 0
         # Storing user flag / username
@@ -247,14 +248,17 @@ class CronTab(object):
         """
         self.crons = []
         self.lines = []
-        self.env = OrderedDict()
+        self.env = OrderedVariableList()
         lines = []
+
         if self.intab is not None:
             lines = self.intab.split('\n')
+
         elif filename:
             self.filen = filename
             with codecs.open(filename, 'r', encoding='utf-8') as fhl:
                 lines = fhl.readlines()
+
         elif self.user:
             (out, err) = open_pipe(CRONCMD, l='', **self.user_opt).communicate()
             if err and 'no crontab for' in unicode(err):
@@ -262,23 +266,34 @@ class CronTab(object):
             elif err:
                 raise IOError("Read crontab %s: %s" % (self.user, err))
             lines = out.decode('utf-8').split("\n")
+
         for line in lines:
             self.append(CronItem(line, cron=self), line, read=True)
 
-    def append(self, cron, line='', read=False):
+    def append(self, item, line='', read=False):
         """Append a CronItem object to this CronTab"""
-        if cron.is_valid():
-            if read and not cron.comment and self.lines and \
+        if item.is_valid():
+            for key in self._parked_env:
+                item.env[key] = self._parked_env.pop(key)
+
+            if read and not item.comment and self.lines and \
               self.lines[-1] and self.lines[-1][0] == '#':
-                cron.set_comment(self.lines.pop()[1:].strip())
-            self.crons.append(cron)
-            self.lines.append(cron)
-            return cron
-        if '=' in line:
+                item.set_comment(self.lines.pop()[1:].strip())
+
+            self.crons.append(item)
+            self.lines.append(item)
+            return item
+
+        elif '=' in line:
             if ' ' not in line or line.index('=') < line.index(' '):
                 (name, value) = line.split('=', 1)
-                self.env[name.strip()] = value.strip()
+                self._parked_env[name.strip()] = value.strip()
                 return None
+
+        elif not self.crons and self._parked_env:
+            for key in self._parked_env:
+                self.env[key] = self._parked_env.pop(key)
+
         self.lines.append(line.replace('\n', ''))
 
     def write(self, filename=None, user=None):
@@ -345,10 +360,8 @@ class CronTab(object):
 
     def render(self):
         """Render this crontab as it would be in the crontab."""
-        envs = self.env.items()
-        env = ["%s=%s" % (key, _unicode(val)) for (key, val) in envs]
         crons = [unicode(cron) for cron in self.lines]
-        result = u'\n'.join(env + crons)
+        result = unicode(self.env) + u'\n'.join(crons)
         if result and result[-1] not in (u'\n', u'\r'):
             result += u'\n'
         return result
@@ -475,6 +488,7 @@ class CronItem(object):
         self.comment = None
         self.command = None
         self.last_run = None
+        self.env = OrderedVariableList(job=self)
 
         self._log = None
 
@@ -559,7 +573,7 @@ class CronItem(object):
                 result += u" # " + self.comment
         if not self.enabled:
             result = u"# " + result
-        return result
+        return unicode(self.env) + result
 
     def every_reboot(self):
         """Set to every reboot instead of a time pattern: @reboot"""
@@ -626,9 +640,7 @@ class CronItem(object):
 
     def run(self):
         """Runs the given command as a pipe"""
-        shell = SHELL
-        if self.cron and 'SHELL' in self.cron.env:
-            shell = self.cron.env['SHELL']
+        shell = self.env.get('SHELL', SHELL)
         (out, err) = open_pipe(shell, '-c', self.command).communicate()
         if err:
             LOG.error(err.decode("utf-8"))
@@ -1203,3 +1215,62 @@ class CronRange(object):
 
     def __unicode__(self):
         return self.render()
+
+
+class OrderedVariableList(OrderedDict):
+    """An ordered dictionary with a linked list containing
+    the previous OrderedVariableList which this list depends.
+
+    Duplicates in this list are weeded out in favour of the previous
+    list in the chain.
+
+    This is all in aid of the ENV variables list which must exist one
+    per job in the chain.
+    """
+    def __init__(self, *args, **kw):
+        self.job = kw.pop('job', None)
+        super(OrderedVariableList, self).__init__(*args, **kw)
+
+    @property
+    def previous(self):
+        """Returns the previous env in the list of jobs in the cron"""
+        if self.job is not None and self.job.cron is not None:
+            index = self.job.cron.crons.index(self.job)
+            if index == 0:
+                return self.job.cron.env
+            else:
+                return self.job.cron[index-1].env
+        return None
+
+    def all(self):
+        """
+        Returns the full dictionary, everything from this dictionary
+        plus all those in the chain above us.
+        """
+        if self.job is not None:
+            ret = self.previous.all().copy()
+            ret.update(self)
+            return ret
+        return self.copy()
+
+    def __getitem__(self, key):
+        previous = self.previous
+        if key in self:
+            return super(OrderedVariableList, self).__getitem__(key)
+        elif previous:
+            return previous.all()[key]
+        raise KeyError("Environment Variable '%s' not found." % key)
+
+    def __str__(self):
+        """Constructs to variable list output used in cron jobs"""
+        ret = []
+        previous = self.previous.all() if self.previous else None
+        for key, value in self.items():
+            if self.previous:
+                if self.previous.all().get(key, None) == value:
+                    continue
+            ret.append("%s=%s" % (key, unicode(value)))
+        ret.append('')
+        return "\n".join(ret)
+
+
