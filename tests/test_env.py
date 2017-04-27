@@ -116,5 +116,17 @@ SECONDARY=fork
         with self.assertRaises(KeyError):
             self.crontab[0].env['RED_BOTTLE']
 
+    def test_06_env_access(self):
+        cron = CronTab(tab="""
+MYNAME='Random'
+
+* * * * * echo "first: $MYNAME"
+* * * * * echo "second: $MYNAME"
+* * * * * echo "third: $MYNAME"
+        """)
+        for job in cron:
+            self.assertEqual(job.env['MYNAME'], "'Random'")
+
+
 if __name__ == '__main__':
     test_support.run_unittest(EnvTestCase)

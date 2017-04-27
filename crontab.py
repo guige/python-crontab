@@ -1257,7 +1257,7 @@ class OrderedVariableList(OrderedDict):
         previous = self.previous
         if key in self:
             return super(OrderedVariableList, self).__getitem__(key)
-        elif previous:
+        elif previous is not None:
             return previous.all()[key]
         raise KeyError("Environment Variable '%s' not found." % key)
 
