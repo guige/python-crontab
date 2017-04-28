@@ -273,8 +273,8 @@ class CronTab(object):
     def append(self, item, line='', read=False):
         """Append a CronItem object to this CronTab"""
         if item.is_valid():
-            for key in self._parked_env:
-                item.env[key] = self._parked_env.pop(key)
+            item.env.update(self._parked_env)
+            self._parked_env = OrderedDict()
 
             if read and not item.comment and self.lines and \
               self.lines[-1] and self.lines[-1][0] == '#':
@@ -291,8 +291,8 @@ class CronTab(object):
                 return None
 
         elif not self.crons and self._parked_env:
-            for key in self._parked_env:
-                self.env[key] = self._parked_env.pop(key)
+            self.env.update(self._parked_env)
+            self._parked_env = OrderedDict()
 
         self.lines.append(line.replace('\n', ''))
 
