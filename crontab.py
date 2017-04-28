@@ -287,7 +287,12 @@ class CronTab(object):
         elif '=' in line:
             if ' ' not in line or line.index('=') < line.index(' '):
                 (name, value) = line.split('=', 1)
-                self._parked_env[name.strip()] = value.strip()
+                value = value.strip()
+                for quot in "\"'":
+                    if value[0] == quot and value[-1] == quot:
+                        value = value.strip(quot)
+                        break
+                self._parked_env[name.strip()] = value
                 return None
 
         elif not self.crons and self._parked_env:
@@ -1269,6 +1274,8 @@ class OrderedVariableList(OrderedDict):
             if self.previous:
                 if self.previous.all().get(key, None) == value:
                     continue
+            if ' ' in unicode(value):
+                value = '"%s"' % value
             ret.append("%s=%s" % (key, unicode(value)))
         ret.append('')
         return "\n".join(ret)

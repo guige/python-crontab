@@ -125,7 +125,7 @@ MYNAME='Random'
 * * * * * echo "third: $MYNAME"
         """)
         for job in cron:
-            self.assertEqual(job.env['MYNAME'], "'Random'")
+            self.assertEqual(job.env['MYNAME'], "Random")
 
     def test_07_mutated_dict(self):
         """Test when the ordered dict is changed during loop"""
@@ -134,6 +134,29 @@ ALL='all'
 ABCD='first'
 * * * * * echo "first"
         """)
+
+    def test_08_space_quotes(self):
+        """Test that spaces and quotes are handled correctly"""
+        cron = CronTab(tab="""
+A=   123   
+B="   123   "
+C='   123   '
+D=  " 123 "  
+E= 1 2 3 
+""")
+        self.assertEqual(cron.env['A'], '123')
+        self.assertEqual(cron.env['B'], '   123   ')
+        self.assertEqual(cron.env['C'], '   123   ')
+        self.assertEqual(cron.env['D'], ' 123 ')
+        self.assertEqual(cron.env['E'], '1 2 3')
+
+        self.assertEqual(str(cron), """A=123
+B="   123   "
+C="   123   "
+D=" 123 "
+E="1 2 3"
+
+""")
 
 if __name__ == '__main__':
     test_support.run_unittest(EnvTestCase)
