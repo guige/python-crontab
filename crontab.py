@@ -104,7 +104,7 @@ except ImportError:
                 " install ordereddict 1.1 from pypi for python2.6")
 
 __pkgname__ = 'python-crontab'
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 
 ITEMREX = re.compile(r'^\s*([^@#\s]+)\s+([^@#\s]+)\s+([^@#\s]+)\s+([^@#\s]+)'
                      r'\s+([^@#\s]+)\s+([^#\n]*)(\s+#\s*([^\n]*)|$)')
