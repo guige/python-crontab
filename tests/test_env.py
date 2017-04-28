@@ -127,6 +127,13 @@ MYNAME='Random'
         for job in cron:
             self.assertEqual(job.env['MYNAME'], "'Random'")
 
+    def test_07_mutated_dict(self):
+        """Test when the ordered dict is changed during loop"""
+        cron = CronTab(tab="""
+ALL='all'
+ABCD='first'
+* * * * * echo "first"
+        """)
 
 if __name__ == '__main__':
     test_support.run_unittest(EnvTestCase)
