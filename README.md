@@ -138,13 +138,15 @@ Use a special syntax::
 
     job.every_reboot()
 
-Find an existing job by command::
+Find an existing job by command sub-match or regular expression::
 
-    iter = cron.find_command('bar')
+    iter = cron.find_command('bar') # matches foobar1
+    iter = cron.find_command(re.compile(r'b[ab]r$'))
 
-Find an existing job by comment::
+Find an existing job by comment exact match or regular expression::
 
     iter = cron.find_comment('ID or some text')
+    iter = cron.find_comment(re.compile(' or \w'))
 
 Find an existing job by schedule::
 

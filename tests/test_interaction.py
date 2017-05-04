@@ -19,6 +19,7 @@
 Test crontab interaction.
 """
 
+import re
 import os
 import sys
 
@@ -214,17 +215,41 @@ class InteractionTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             dow.get_range('%')
 
-    def test_15_slice_id(self):
+    def test_17_slice_id(self):
         """Single slice by Id"""
         self.assertEqual(CronSlice(1).max, 23)
 
-    def test_17_range_cmp(self):
+    def test_18_range_cmp(self):
         """Compare ranges"""
         dow = CronSlice({'max': 5, 'min': 0})
         three = dow.get_range(2, 4)[0]
         self.assertGreater(three, 2)
         self.assertLess(three, 4)
         self.assertEqual(str(three), '2-4')
+
+    def test_18_find(self):
+        """Find a command and comments by name"""
+        cmds = list(self.crontab.find_command('byweek'))
+        self.assertEqual(len(cmds), 1)
+        self.assertEqual(cmds[0].comment, 'Comment One')
+
+        cmds = list(self.crontab.find_command(re.compile(r'stc\w')))
+        self.assertEqual(len(cmds), 1)
+        self.assertEqual(cmds[0].command, 'firstcommand')
+
+        cmds = list(self.crontab.find_command('Comment One'))
+        self.assertEqual(len(cmds), 0)
+
+        cmds = list(self.crontab.find_comment('Comment One'))
+        self.assertEqual(len(cmds), 1)
+        self.assertEqual(cmds[0].command, 'byweek')
+
+        cmds = list(self.crontab.find_comment(re.compile(r'om+en\w O')))
+        self.assertEqual(len(cmds), 1)
+        self.assertEqual(cmds[0].comment, 'Comment One')
+
+        cmds = list(self.crontab.find_comment(re.compile('stc\w')))
+        self.assertEqual(len(cmds), 0)
 
     def test_20_write(self):
         """Write CronTab to file"""
