@@ -1,3 +1,4 @@
+[![PyPI version](https://badge.fury.io/py/python-crontab.svg)](https://badge.fury.io/py/python-crontab) [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](http://www.gnu.org/licenses/lgpl-3.0)
 
 Bug Reports and Development
 ===========================
@@ -10,7 +11,7 @@ Please report any problems to the `github issues tracker <https://github.com/doc
 Description
 ===========
 
-Crontab module for read and writing crontab files and accessing the system cron
+Crontab module for reading and writing crontab files and accessing the system cron
 automatically and simply using a direct API.
 
 Comparing the `below chart <http://en.wikipedia.org/wiki/Cron#CRON_expression>`_
