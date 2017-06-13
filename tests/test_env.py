@@ -158,5 +158,19 @@ E="1 2 3"
 
 """)
 
+    def test_09_delete_middle(self):
+        """Test that a delete doesn't remove vars"""
+        self.crontab.remove_all(command='eat_icecream')
+        self.crontab.remove_all(command='eat_soup')
+        self.assertEqual(str(self.crontab), """PERSONAL_VAR=bar
+CRON_VAR=spoon
+35 12 * * * eat_salad
+
+
+CRON_VAR=knife
+SECONDARY=fork
+38 12 * * * eat_steak
+""")
+
 if __name__ == '__main__':
     test_support.run_unittest(EnvTestCase)

@@ -450,9 +450,19 @@ class CronTab(object):
 
     def _remove(self, item):
         """Internal removal of an item"""
-        # The last item often has a trailing line feed
-        if self.crons[-1] == item and self.lines[-1] == '':
-            self.lines.remove(self.lines[-1])
+        # Manage siblings when items are deleted
+        for sibling in self.lines[self.lines.index(item)+1:]:
+            if isinstance(sibling, CronItem):
+                env = sibling.env
+                sibling.env = item.env
+                sibling.env.update(env)
+                sibling.env.job = sibling
+                break
+            elif sibling == '':
+                self.lines.remove(sibling)
+            else:
+                break
+
         self.crons.remove(item)
         self.lines.remove(item)
         return 1
